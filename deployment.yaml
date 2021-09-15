@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: first-docker-kubectl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: react-example
+  template:
+    metadata:
+      labels:
+        app: react-example
+    spec:
+      containers:
+        - name: react-example
+          image: azurecr09.azurecr.io/react-example:v1
+          # ports:
+          # - containerPort: 80
+      imagePullSecrets:
+        - name: acr-secret
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: first-docker-kubectl
+spec:
+  selector:
+    app: react-example
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      nodePort: 31000
+  type: NodePort
