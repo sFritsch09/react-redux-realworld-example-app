@@ -1,0 +1,18 @@
+- name: Azure Container Registry Login
+  uses: Azure/docker-login@v1
+  with:
+    # Container registry username
+    username: # default is 
+    # Container registry password
+    password: # default is 
+    # Container registry server url
+    login-server: # default is https://index.docker.io/v1/
+      # Runs a single command using the runners shell
+      - name: Run a one-line script
+        run: echo Hello, world!
+
+      # Runs a set of commands using the runners shell
+      - name: Run a multi-line script
+        run: |
+          echo Add other actions to build,
+          echo test, and deploy your project.
