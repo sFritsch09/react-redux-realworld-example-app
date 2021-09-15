@@ -10,7 +10,7 @@ jobs:
           # Container registry username
           username: azurecr09
           # Container registry password
-          password: O12Qm7=13SZhzCld8qC7UVrJWXVXlslu
+          password: secret
           # Container registry server url
           login-server: azurecr09.azurecr.io
             # Runs a single command using the runners shell
