@@ -1,24 +1,18 @@
-name: Azure Login
-on: [push]
-jobs:
-  Explore-GitHub-Actions:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Azure Container Registry Login
-        uses: Azure/docker-login@v1
-        with:
-          # Container registry username
-          username: azurecr09
-          # Container registry password
-          password: secret
-          # Container registry server url
-          login-server: azurecr09.azurecr.io
-            # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
+name: ACR Login Docker Push
 
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
-        run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: azure/docker-login@v1
+      with:
+        login-server: azurecr09.azurecr.io
+        username: ${{ secrets.ACR_USERNAME }}
+        password: ${{ secrets.ACR_PASSWORD }}
+    - run: |
+        docker build . -t azurecr09.azurecr.io/gh-react-example:${{ github.sha }}
+        docker push mycontainer.azurecr.io/gh-react-example:${{ github.sha }}
