@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>middleware.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="../doc-style.css" />
+  <script src="../doc-filelist.js"></script>
+  <script>
+    var relativeDir = "../";
+    var thisFile = "src/middleware.js";
+    var defaultSidebar = true;
+  </script>
+  <script src="../doc-script.js"></script>
+
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container">
+    <div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+    
+      <tr>
+        <td class="docs">
+          <h1>middleware.js</h1>
+        </td>
+        <td class="code highlight"></td>
+      </tr>
+    
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-1" id="section-1"></a>
+</div>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-keyword">import</span> agent <span class="hljs-keyword">from</span> <span class="hljs-string">'./agent'</span>;
+<span class="hljs-keyword">import</span> {
+  ASYNC_START,
+  ASYNC_END,
+  LOGIN,
+  LOGOUT,
+  REGISTER
+} <span class="hljs-keyword">from</span> <span class="hljs-string">'./constants/actionTypes'</span>;
+
+<span class="hljs-keyword">const</span> promiseMiddleware = <span class="hljs-function"><span class="hljs-params">store</span> =&gt;</span> <span class="hljs-function"><span class="hljs-params">next</span> =&gt;</span> <span class="hljs-function"><span class="hljs-params">action</span> =&gt;</span> {
+  <span class="hljs-keyword">if</span> (isPromise(action.payload)) {
+    store.dispatch({ <span class="hljs-attr">type</span>: ASYNC_START, <span class="hljs-attr">subtype</span>: action.type });
+
+    <span class="hljs-keyword">const</span> currentView = store.getState().viewChangeCounter;
+    <span class="hljs-keyword">const</span> skipTracking = action.skipTracking;
+
+    action.payload.then(
+      <span class="hljs-function"><span class="hljs-params">res</span> =&gt;</span> {
+        <span class="hljs-keyword">const</span> currentState = store.getState()
+        <span class="hljs-keyword">if</span> (!skipTracking &amp;&amp; currentState.viewChangeCounter !== currentView) {
+          <span class="hljs-keyword">return</span>
+        }
+        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'RESULT'</span>, res);
+        action.payload = res;
+        store.dispatch({ <span class="hljs-attr">type</span>: ASYNC_END, <span class="hljs-attr">promise</span>: action.payload });
+        store.dispatch(action);
+      },
+      error =&gt; {
+        <span class="hljs-keyword">const</span> currentState = store.getState()
+        <span class="hljs-keyword">if</span> (!skipTracking &amp;&amp; currentState.viewChangeCounter !== currentView) {
+          <span class="hljs-keyword">return</span>
+        }
+        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'ERROR'</span>, error);
+        action.error = <span class="hljs-literal">true</span>;
+        action.payload = error.response.body;
+        <span class="hljs-keyword">if</span> (!action.skipTracking) {
+          store.dispatch({ <span class="hljs-attr">type</span>: ASYNC_END, <span class="hljs-attr">promise</span>: action.payload });
+        }
+        store.dispatch(action);
+      }
+    );
+
+    <span class="hljs-keyword">return</span>;
+  }
+
+  next(action);
+};
+
+<span class="hljs-keyword">const</span> localStorageMiddleware = <span class="hljs-function"><span class="hljs-params">store</span> =&gt;</span> <span class="hljs-function"><span class="hljs-params">next</span> =&gt;</span> <span class="hljs-function"><span class="hljs-params">action</span> =&gt;</span> {
+  <span class="hljs-keyword">if</span> (action.type === REGISTER || action.type === LOGIN) {
+    <span class="hljs-keyword">if</span> (!action.error) {
+      <span class="hljs-built_in">window</span>.localStorage.setItem(<span class="hljs-string">'jwt'</span>, action.payload.user.token);
+      agent.setToken(action.payload.user.token);
+    }
+  } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (action.type === LOGOUT) {
+    <span class="hljs-built_in">window</span>.localStorage.setItem(<span class="hljs-string">'jwt'</span>, <span class="hljs-string">''</span>);
+    agent.setToken(<span class="hljs-literal">null</span>);
+  }
+
+  next(action);
+};
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isPromise</span>(<span class="hljs-params">v</span>) </span>{
+  <span class="hljs-keyword">return</span> v &amp;&amp; <span class="hljs-keyword">typeof</span> v.then === <span class="hljs-string">'function'</span>;
+}
+
+
+<span class="hljs-keyword">export</span> { promiseMiddleware, localStorageMiddleware }
+
+</pre>
+        </td>
+      </tr>
+    
+  </tbody>
+</table>
+
+  </div>
+</body>
+</html>

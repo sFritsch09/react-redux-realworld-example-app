@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>agent.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="../doc-style.css" />
+  <script src="../doc-filelist.js"></script>
+  <script>
+    var relativeDir = "../";
+    var thisFile = "src/agent.js";
+    var defaultSidebar = true;
+  </script>
+  <script src="../doc-script.js"></script>
+
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container">
+    <div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+    
+      <tr>
+        <td class="docs">
+          <h1>agent.js</h1>
+        </td>
+        <td class="code highlight"></td>
+      </tr>
+    
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-1" id="section-1"></a>
+</div>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-keyword">import</span> superagentPromise <span class="hljs-keyword">from</span> <span class="hljs-string">'superagent-promise'</span>;
+<span class="hljs-keyword">import</span> _superagent <span class="hljs-keyword">from</span> <span class="hljs-string">'superagent'</span>;
+
+<span class="hljs-keyword">const</span> superagent = superagentPromise(_superagent, global.Promise);
+
+<span class="hljs-keyword">const</span> API_ROOT = <span class="hljs-string">'https://conduit.productionready.io/api'</span>;
+
+<span class="hljs-keyword">const</span> encode = <span class="hljs-built_in">encodeURIComponent</span>;
+<span class="hljs-keyword">const</span> responseBody = <span class="hljs-function"><span class="hljs-params">res</span> =&gt;</span> res.body;
+
+<span class="hljs-keyword">let</span> token = <span class="hljs-literal">null</span>;
+<span class="hljs-keyword">const</span> tokenPlugin = <span class="hljs-function"><span class="hljs-params">req</span> =&gt;</span> {
+  <span class="hljs-keyword">if</span> (token) {
+    req.set(<span class="hljs-string">'authorization'</span>, <span class="hljs-string">`Token <span class="hljs-subst">${token}</span>`</span>);
+  }
+}
+
+<span class="hljs-keyword">const</span> requests = {
+  <span class="hljs-attr">del</span>: <span class="hljs-function"><span class="hljs-params">url</span> =&gt;</span>
+    superagent.del(<span class="hljs-string">`<span class="hljs-subst">${API_ROOT}</span><span class="hljs-subst">${url}</span>`</span>).use(tokenPlugin).then(responseBody),
+  <span class="hljs-attr">get</span>: <span class="hljs-function"><span class="hljs-params">url</span> =&gt;</span>
+    superagent.get(<span class="hljs-string">`<span class="hljs-subst">${API_ROOT}</span><span class="hljs-subst">${url}</span>`</span>).use(tokenPlugin).then(responseBody),
+  <span class="hljs-attr">put</span>: <span class="hljs-function">(<span class="hljs-params">url, body</span>) =&gt;</span>
+    superagent.put(<span class="hljs-string">`<span class="hljs-subst">${API_ROOT}</span><span class="hljs-subst">${url}</span>`</span>, body).use(tokenPlugin).then(responseBody),
+  <span class="hljs-attr">post</span>: <span class="hljs-function">(<span class="hljs-params">url, body</span>) =&gt;</span>
+    superagent.post(<span class="hljs-string">`<span class="hljs-subst">${API_ROOT}</span><span class="hljs-subst">${url}</span>`</span>, body).use(tokenPlugin).then(responseBody)
+};
+
+<span class="hljs-keyword">const</span> Auth = {
+  <span class="hljs-attr">current</span>: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span>
+    requests.get(<span class="hljs-string">'/user'</span>),
+  <span class="hljs-attr">login</span>: <span class="hljs-function">(<span class="hljs-params">email, password</span>) =&gt;</span>
+    requests.post(<span class="hljs-string">'/users/login'</span>, { <span class="hljs-attr">user</span>: { email, password } }),
+  <span class="hljs-attr">register</span>: <span class="hljs-function">(<span class="hljs-params">username, email, password</span>) =&gt;</span>
+    requests.post(<span class="hljs-string">'/users'</span>, { <span class="hljs-attr">user</span>: { username, email, password } }),
+  <span class="hljs-attr">save</span>: <span class="hljs-function"><span class="hljs-params">user</span> =&gt;</span>
+    requests.put(<span class="hljs-string">'/user'</span>, { user })
+};
+
+<span class="hljs-keyword">const</span> Tags = {
+  <span class="hljs-attr">getAll</span>: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> requests.get(<span class="hljs-string">'/tags'</span>)
+};
+
+<span class="hljs-keyword">const</span> limit = <span class="hljs-function">(<span class="hljs-params">count, p</span>) =&gt;</span> <span class="hljs-string">`limit=<span class="hljs-subst">${count}</span>&amp;offset=<span class="hljs-subst">${p ? p * count : <span class="hljs-number">0</span>}</span>`</span>;
+<span class="hljs-keyword">const</span> omitSlug = <span class="hljs-function"><span class="hljs-params">article</span> =&gt;</span> <span class="hljs-built_in">Object</span>.assign({}, article, { <span class="hljs-attr">slug</span>: <span class="hljs-literal">undefined</span> })
+<span class="hljs-keyword">const</span> Articles = {
+  <span class="hljs-attr">all</span>: <span class="hljs-function"><span class="hljs-params">page</span> =&gt;</span>
+    requests.get(<span class="hljs-string">`/articles?<span class="hljs-subst">${limit(<span class="hljs-number">10</span>, page)}</span>`</span>),
+  <span class="hljs-attr">byAuthor</span>: <span class="hljs-function">(<span class="hljs-params">author, page</span>) =&gt;</span>
+    requests.get(<span class="hljs-string">`/articles?author=<span class="hljs-subst">${encode(author)}</span>&amp;<span class="hljs-subst">${limit(<span class="hljs-number">5</span>, page)}</span>`</span>),
+  <span class="hljs-attr">byTag</span>: <span class="hljs-function">(<span class="hljs-params">tag, page</span>) =&gt;</span>
+    requests.get(<span class="hljs-string">`/articles?tag=<span class="hljs-subst">${encode(tag)}</span>&amp;<span class="hljs-subst">${limit(<span class="hljs-number">10</span>, page)}</span>`</span>),
+  <span class="hljs-attr">del</span>: <span class="hljs-function"><span class="hljs-params">slug</span> =&gt;</span>
+    requests.del(<span class="hljs-string">`/articles/<span class="hljs-subst">${slug}</span>`</span>),
+  <span class="hljs-attr">favorite</span>: <span class="hljs-function"><span class="hljs-params">slug</span> =&gt;</span>
+    requests.post(<span class="hljs-string">`/articles/<span class="hljs-subst">${slug}</span>/favorite`</span>),
+  <span class="hljs-attr">favoritedBy</span>: <span class="hljs-function">(<span class="hljs-params">author, page</span>) =&gt;</span>
+    requests.get(<span class="hljs-string">`/articles?favorited=<span class="hljs-subst">${encode(author)}</span>&amp;<span class="hljs-subst">${limit(<span class="hljs-number">5</span>, page)}</span>`</span>),
+  <span class="hljs-attr">feed</span>: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span>
+    requests.get(<span class="hljs-string">'/articles/feed?limit=10&amp;offset=0'</span>),
+  <span class="hljs-attr">get</span>: <span class="hljs-function"><span class="hljs-params">slug</span> =&gt;</span>
+    requests.get(<span class="hljs-string">`/articles/<span class="hljs-subst">${slug}</span>`</span>),
+  <span class="hljs-attr">unfavorite</span>: <span class="hljs-function"><span class="hljs-params">slug</span> =&gt;</span>
+    requests.del(<span class="hljs-string">`/articles/<span class="hljs-subst">${slug}</span>/favorite`</span>),
+  <span class="hljs-attr">update</span>: <span class="hljs-function"><span class="hljs-params">article</span> =&gt;</span>
+    requests.put(<span class="hljs-string">`/articles/<span class="hljs-subst">${article.slug}</span>`</span>, { <span class="hljs-attr">article</span>: omitSlug(article) }),
+  <span class="hljs-attr">create</span>: <span class="hljs-function"><span class="hljs-params">article</span> =&gt;</span>
+    requests.post(<span class="hljs-string">'/articles'</span>, { article })
+};
+
+<span class="hljs-keyword">const</span> Comments = {
+  <span class="hljs-attr">create</span>: <span class="hljs-function">(<span class="hljs-params">slug, comment</span>) =&gt;</span>
+    requests.post(<span class="hljs-string">`/articles/<span class="hljs-subst">${slug}</span>/comments`</span>, { comment }),
+  <span class="hljs-attr">delete</span>: <span class="hljs-function">(<span class="hljs-params">slug, commentId</span>) =&gt;</span>
+    requests.del(<span class="hljs-string">`/articles/<span class="hljs-subst">${slug}</span>/comments/<span class="hljs-subst">${commentId}</span>`</span>),
+  <span class="hljs-attr">forArticle</span>: <span class="hljs-function"><span class="hljs-params">slug</span> =&gt;</span>
+    requests.get(<span class="hljs-string">`/articles/<span class="hljs-subst">${slug}</span>/comments`</span>)
+};
+
+<span class="hljs-keyword">const</span> Profile = {
+  <span class="hljs-attr">follow</span>: <span class="hljs-function"><span class="hljs-params">username</span> =&gt;</span>
+    requests.post(<span class="hljs-string">`/profiles/<span class="hljs-subst">${username}</span>/follow`</span>),
+  <span class="hljs-attr">get</span>: <span class="hljs-function"><span class="hljs-params">username</span> =&gt;</span>
+    requests.get(<span class="hljs-string">`/profiles/<span class="hljs-subst">${username}</span>`</span>),
+  <span class="hljs-attr">unfollow</span>: <span class="hljs-function"><span class="hljs-params">username</span> =&gt;</span>
+    requests.del(<span class="hljs-string">`/profiles/<span class="hljs-subst">${username}</span>/follow`</span>)
+};
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> {
+  Articles,
+  Auth,
+  Comments,
+  Profile,
+  Tags,
+  <span class="hljs-attr">setToken</span>: <span class="hljs-function"><span class="hljs-params">_token</span> =&gt;</span> { token = _token; }
+};
+
+</pre>
+        </td>
+      </tr>
+    
+  </tbody>
+</table>
+
+  </div>
+</body>
+</html>
