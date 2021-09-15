@@ -13,6 +13,7 @@ jobs:
         login-server: azurecr09.azurecr.io
         username: ${{ secrets.ACR_USERNAME }}
         password: ${{ secrets.ACR_PASSWORD }}
-    - run: |
+    - name: Build and push Docker Container
+      run: |
         docker build . -t azurecr09.azurecr.io/gh-react-example:${{ github.sha }}
         docker push azurecr09.azurecr.io/gh-react-example:${{ github.sha }}
