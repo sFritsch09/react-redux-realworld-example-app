@@ -1,13 +1,19 @@
-- name: Azure Container Registry Login
-  uses: Azure/docker-login@v1
-  with:
-    # Container registry username
-    username: # default is 
-    # Container registry password
-    password: # default is 
-    # Container registry server url
-    login-server: # default is https://index.docker.io/v1/
-      # Runs a single command using the runners shell
+name: Azure Login
+on: [push]
+jobs:
+  Explore-GitHub-Actions:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Azure Container Registry Login
+        uses: Azure/docker-login@v1
+        with:
+          # Container registry username
+          username: azurecr09
+          # Container registry password
+          password: O12Qm7=13SZhzCld8qC7UVrJWXVXlslu
+          # Container registry server url
+          login-server: azurecr09.azurecr.io
+            # Runs a single command using the runners shell
       - name: Run a one-line script
         run: echo Hello, world!
 
