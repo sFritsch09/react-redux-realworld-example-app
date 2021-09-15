@@ -3,7 +3,8 @@ name: ACR Login Docker Push
 on: [push]
 
 jobs:
-  Push to ACR:
+  job1:
+    name: Push Docker to ACR
     runs-on: ubuntu-latest
 
     steps:
