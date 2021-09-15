@@ -15,4 +15,4 @@ jobs:
         password: ${{ secrets.ACR_PASSWORD }}
     - run: |
         docker build . -t azurecr09.azurecr.io/gh-react-example:${{ github.sha }}
-        docker push mycontainer.azurecr.io/gh-react-example:${{ github.sha }}
+        docker push azurecr09.azurecr.io/gh-react-example:${{ github.sha }}
