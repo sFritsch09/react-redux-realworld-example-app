@@ -1,21 +1,20 @@
 name: ACR Login Docker Push
-description: 'Build a Docker image and push it to Azure Container Registry'
-inputs:
-  azure-username: # id of input
-    description: Username of ACR
-    required: true
-  azure-password: # id of input
-    description: Password of ACR
-    required: true
-branding:
-  icon: upload-cloud
-  color: blue
+#description: Build a Docker image and push it to Azure Container Registry
+#inputs:
+#  azure-username: # id of input
+#    description: Username of ACR
+#    required: true
+#  azure-password: # id of input
+#    description: Password of ACR
+#    required: true
+#branding:
+#  icon: upload-cloud
+#  color: blue
 on: [push]
 jobs:
   build:
     name: Push Docker to ACR
     runs-on: ubuntu-latest
-
     steps:
     - name: Git Checkout
       uses: actions/checkout@v2
