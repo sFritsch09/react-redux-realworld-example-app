@@ -3,17 +3,19 @@ name: ACR Login Docker Push
 on: [push]
 
 jobs:
-  build:
+  Push to ACR:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - uses: azure/docker-login@v1
+    - name: Git Checkout
+      uses: actions/checkout@v2
+    - name: Docker Login
+      uses: azure/docker-login@v1
       with:
         login-server: azurecr09.azurecr.io
         username: ${{ secrets.ACR_USERNAME }}
         password: ${{ secrets.ACR_PASSWORD }}
-    - name: Build and push Docker Container
+    - name: Build and push Docker image to ACR
       run: |
         docker build . -t azurecr09.azurecr.io/gh-react-example:${{ github.sha }}
         docker push azurecr09.azurecr.io/gh-react-example:${{ github.sha }}
